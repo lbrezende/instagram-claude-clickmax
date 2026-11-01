@@ -1,0 +1,14 @@
+[
+  {
+    "id": "exemplo-agenda",
+    "titulo": "Sua agenda não é o problema",
+    "formato": "carrossel",
+    "palavra": "AGENDA",
+    "legenda": "Texto da legenda.\n\nComenta AGENDA que eu te mando o artigo.",
+    "dm": "Oi! Aqui o artigo: https://seusite.com/artigo?ig={{instagram}}&utm_source=instagram&utm_medium=dm&utm_campaign=exemplo-agenda",
+    "artigo": "https://seusite.com/artigo",
+    "imagens": ["https://placehold.co/1080x1350/F7F6F1/12265F.png?text=Slide+1", "https://placehold.co/1080x1350/DCF57A/12265F.png?text=Slide+2"],
+    "decisao": null,
+    "nota": ""
+  }
+]

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fila de aprovação</title>
+<style>
+:root{--papel:#F7F6F1;--azul:#2343F2;--limao:#DCF57A;--marinho:#12265F;--creme:#FFF4E4;--coral:#FF7A66}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--marinho);font:16px/1.5 system-ui,sans-serif}
+.pagina{max-width:560px;margin:0 auto;padding:20px 16px 64px}
+h1{font-size:28px;line-height:1.1;margin:0 0 4px;color:var(--azul);text-wrap:balance}
+h2{font-size:20px;margin:0;text-wrap:balance}
+.abas{display:flex;gap:8px;margin:16px 0;overflow-x:auto}
+button{font:inherit;font-weight:600;color:var(--marinho);background:#fff;border:2px solid var(--marinho);border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer;white-space:nowrap}
+button.ativo,.aprovar{background:var(--limao)}
+.post{background:#fff;border:2px solid var(--marinho);border-radius:16px;padding:14px;margin-bottom:16px}
+.trilho{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:10px 0}
+.trilho img{flex:0 0 78%;width:78%;aspect-ratio:4/5;object-fit:cover;scroll-snap-align:start;border-radius:10px;background:var(--creme)}
+details{border-top:1px solid #d9d9d2;padding:8px 0}
+summary{font-weight:600;cursor:pointer;min-height:32px}
+pre{white-space:pre-wrap;word-break:break-word;margin:8px 0;font:inherit;text-wrap:pretty}
+textarea{width:100%;font:inherit;border:2px solid var(--marinho);border-radius:10px;padding:10px;min-height:72px}
+.acoes{display:flex;gap:8px;margin-top:10px}.acoes button{flex:1}
+.ajustar{background:var(--creme)}
+.vazio{padding:32px 0;text-align:center}
+a{color:var(--azul)}
+</style>
+</head>
+<body>
+<main class="pagina">
+  <h1>Fila de aprovação</h1>
+  <p>Nada vai ao ar sem passar por aqui.</p>
+  <div class="abas" id="abas"></div>
+  <div id="lista"></div>
+  <button id="exportar">Baixar decisões</button>
+</main>
+<script>
+// Molde: lê posts.json (ou o exemplo) e guarda as decisões neste navegador.
+// Para decidir pelo celular e o Claude ler, peça para publicar como Artifact com banco de dados (veja README).
+const CHAVE='decisoes-aprovacao';
+const ler=()=>{try{return JSON.parse(localStorage.getItem(CHAVE))||{}}catch{return {}}};
+const gravar=d=>{try{localStorage.setItem(CHAVE,JSON.stringify(d))}catch{}};
+const ABAS={decidir:'Pra decidir',aprovado:'Aprovados',ajuste:'Ajustar'};
+let aba='decidir',posts=[];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function linkSeguro(u){try{const x=new URL(u);return ['http:','https:'].includes(x.protocol)?x.href:'#'}catch{return '#'}}
+function decisao(p){return ler()[p.id]?.decisao||p.decisao||'decidir'}
+function desenhar(){
+  const abas=document.getElementById('abas');abas.innerHTML='';
+  for(const k in ABAS){const b=document.createElement('button');b.textContent=`${ABAS[k]} (${posts.filter(p=>decisao(p)===k).length})`;b.className=k===aba?'ativo':'';b.onclick=()=>{aba=k;desenhar()};abas.append(b)}
+  const vis=posts.filter(p=>decisao(p)===aba),l=document.getElementById('lista');
+  l.innerHTML=vis.length?'':'<p class="vazio">Nada aqui.</p>';
+  for(const p of vis){
+    const el=document.createElement('article');el.className='post';
+    el.innerHTML=`<h2>${esc(p.titulo)}</h2><p>${esc(p.formato)} · palavra <strong>${esc(p.palavra)}</strong></p>
+    <div class="trilho">${(p.imagens||[]).map((u,i)=>`<img src="${esc(linkSeguro(u))}" alt="Slide ${i+1}" loading="lazy">`).join('')}</div>
+    <details open><summary>Legenda</summary><pre>${esc(p.legenda)}</pre></details>
+    <details><summary>Mensagem da automação</summary><pre>${esc(p.dm)}</pre></details>
+    <p><a href="${esc(linkSeguro(p.artigo))}" target="_blank" rel="noopener">Abrir o artigo</a></p>
+    <textarea aria-label="O que ajustar" placeholder="O que ajustar?">${esc(ler()[p.id]?.nota||'')}</textarea>
+    <div class="acoes"><button class="aprovar">Aprovar</button><button class="ajustar">Pedir ajuste</button></div>`;
+    const salvar=d=>{const t=ler();t[p.id]={decisao:d,nota:el.querySelector('textarea').value,em:new Date().toISOString()};gravar(t);desenhar()};
+    el.querySelector('.aprovar').onclick=()=>salvar('aprovado');
+    el.querySelector('.ajustar').onclick=()=>salvar('ajuste');
+    l.append(el);
+  }
+}
+document.getElementById('exportar').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(ler(),null,1)],{type:'application/json'}));a.download='decisoes.json';a.click()};
+(async()=>{for(const arq of ['posts.json','posts.exemplo.json']){try{const r=await fetch(arq);if(r.ok){posts=await r.json();break}}catch{}}desenhar()})();
+</script>
+</body>
+</html>

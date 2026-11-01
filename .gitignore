@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+estado/
+midia/
+node_modules/
+.DS_Store
+aprovacao/posts.json
