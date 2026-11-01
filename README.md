@@ -128,9 +128,9 @@ Veja `AGENTS.md`. Comece só com o vinculador e a conferência.
 
 ## O que dá errado
 
-Tudo aqui aconteceu comigo.
+Tudo aqui aconteceu comigo, em outubro e novembro de 2026.
 
-- **Fluxo ativo e mudo.** O filtro estava em `WORD_MATCH`, que esse gatilho não dispara. Use `CONTAINS`.
+- **Fluxo ativo e mudo.** O filtro estava na opção `WORD_MATCH`, e com ela esse gatilho não dispara. Use `CONTAINS`, que quer dizer "contém".
 - **Ronda lenta perde comentário.** O vinculador rodava de hora em hora, o post saiu e o primeiro comentário chegou antes do fluxo ativar. Baixei para 10 minutos.
 - **Alguns comentários não chegam à automação, mesmo com tudo certo.** Por isso existe a conferência: comparar quem comentou com quem recebeu.
 - **O Instagram pode recusar a DM** ("user not found"). Essa pessoa precisa de resposta manual.
